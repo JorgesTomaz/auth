@@ -1,7 +1,6 @@
 package io.ideale.auth.controller;
 
 import io.ideale.auth.dto.CartaoDTO;
-import io.ideale.auth.exception.CartaoExistenteException;
 import io.ideale.auth.model.Cartao;
 import io.ideale.auth.service.CartaoService;
 import org.modelmapper.ModelMapper;
@@ -26,7 +25,7 @@ public class CartaoController {
     private CartaoService cartaoService;
 
     @PostMapping
-    public ResponseEntity create(@Valid @RequestBody CartaoDTO cartaoDTO) throws Exception {
+    public ResponseEntity criarCartao(@Valid @RequestBody CartaoDTO cartaoDTO) throws Exception {
 
         Cartao cartao  = modelMapper.map(cartaoDTO, Cartao.class);
         cartao = cartaoService.criarCartao(cartao);
