@@ -59,7 +59,6 @@ public class CartaoServiceImpl implements CartaoService{
 
     }
 
-    // TODO melhorear essa merda
     @Override
     public Cartao debito(Cartao cartao) {
 
