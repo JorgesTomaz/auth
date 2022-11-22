@@ -1,17 +1,18 @@
 package io.ideale.auth.repository;
 
-import io.ideale.auth.exception.CartaoExceptionHandler;
-import io.ideale.auth.exception.CartaoInvalidoException;
-import io.ideale.auth.exception.DadosCartaoInvalidosException;
+import io.ideale.auth.exception.*;
 import io.ideale.auth.model.Cartao;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.transaction.Transactional;
+import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.Optional;
+
 
 @Transactional
 public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
@@ -23,30 +24,20 @@ public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
     private ModelMapper modelMapper;
 
     @Override
-    public Cartao criarNovo(Cartao cartao) throws DadosCartaoInvalidosException {
-        try {
-
-            Cartao cartaoResposta = entityManager.merge(cartao);
-
-            return cartaoResposta;
-        } catch(Exception e) {
-
-            throw DadosCartaoInvalidosException.builder().cartao(modelMapper.map(cartao, CartaoExceptionHandler.class)).build();
-        }
-
+    public Cartao criarNovo(Cartao cartao) {
+        return entityManager.merge(cartao);
     }
 
     @Override
-    public Cartao consultaCartao(String numero) {
+    public Cartao consultaCartao(String numero) throws CartaoInexistenteException{
         Cartao cartao = null;
-
         try {
-             cartao = (Cartao) entityManager
+            cartao = (Cartao) entityManager
                     .createNamedQuery("consultarCartaoExistente")
                     .setParameter("numero", numero)
                     .getSingleResult();
-        } catch(Exception e) {
-            return null;
+        }catch (Exception e) {
+            throw CartaoInexistenteException.builder().build();
         }
         return cartao;
     }
@@ -54,19 +45,41 @@ public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
     @Override
     public BigDecimal obterSaldo(String numeroCartao) {
         BigDecimal saldo = null;
-
-        try {
-            saldo = (BigDecimal) entityManager
-                    .createNamedQuery("consultarSaldo")
-                    .setParameter("numero", numeroCartao)
-                    .getSingleResult();
-        } catch(Exception e) {
-            throw CartaoInvalidoException
-                    .builder()
-                    .cartao(
-                            CartaoExceptionHandler.builder().numero(numeroCartao).build()
-                    ).build();
-        }
+        saldo = (BigDecimal) entityManager
+                .createNamedQuery("consultarSaldo")
+                .setParameter("numero", numeroCartao)
+                .getSingleResult();
         return saldo;
+    }
+
+    @Override
+    public Cartao debito(Cartao cartao) {
+        try{
+            entityManager
+                .createQuery("update Cartao c set c.valor = :valor WHERE c.numero = :numero")
+                .setParameter("valor", cartao.getValor())
+                .setParameter("numero", cartao.getNumero())
+                .executeUpdate();
+        } catch(ConstraintViolationException e) {
+            throw SaldoInsuficienteException.builder().build();
+        } catch (Exception e) {
+            throw e;
+        }
+        return cartao;
+    }
+
+    @Override
+    public void validarSenha(Cartao cartao) throws SenhaIvalidaException {
+        Cartao novoCartao = null;
+        try {
+            novoCartao = (Cartao) entityManager
+                    .createNamedQuery("validarSenha")
+                    .setParameter("numero", cartao.getNumero())
+                    .setParameter("senha", cartao.getSenha())
+                    .getSingleResult();
+        } catch(NoResultException e) {
+            throw SenhaIvalidaException.builder().build();
+        }
+
     }
 }

@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 
 @Setter
@@ -23,7 +24,17 @@ import java.math.BigDecimal;
         @NamedQuery(
                 name = "consultarSaldo",
                 query = "SELECT c.valor FROM Cartao c WHERE c.numero = :numero"
+        ),
+        @NamedQuery(
+                name = "debitarSaldo",
+                query = "update Cartao c set c.valor = :valor WHERE c.numero = :numero"
+        ),
+        @NamedQuery(
+                name = "validarSenha",
+                query = "SELECT c FROM Cartao c WHERE c.numero = :numero and c.senha = :senha"
         )
+
+
 })
 public class Cartao {
 
@@ -37,5 +48,6 @@ public class Cartao {
     private String senha;
 
     @Column
+    @Positive
     private BigDecimal valor;
 }

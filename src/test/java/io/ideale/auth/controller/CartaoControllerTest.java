@@ -1,9 +1,9 @@
 package io.ideale.auth.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ideale.auth.dto.CartaoDTO;
 import io.ideale.auth.exception.CartaoExistenteException;
+import io.ideale.auth.exception.CartaoInexistenteException;
 import io.ideale.auth.model.Cartao;
 import io.ideale.auth.service.CartaoService;
 import org.junit.jupiter.api.DisplayName;
@@ -18,12 +18,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -91,7 +89,7 @@ class CartaoControllerTest {
 
     @Test
     @DisplayName("Obter saldo cartao")
-    void obtersaldo() throws Exception {
+    void obterSaldo() throws Exception {
         BigDecimal saldo = new BigDecimal(100.00);
         String numeroCartao = "12345678";
         BDDMockito.given(service.obterSaldo(any(String.class))).
@@ -109,6 +107,28 @@ class CartaoControllerTest {
                 .perform(req)
                 .andExpect(status().isOk())
                 .andExpect(content().string("100"))
+        ;
+    }
+
+    @Test
+    @DisplayName("Obter saldo de cartao inexistente")
+    void obterSaldoDeCartaoInexistente() throws Exception {
+        BigDecimal saldo = new BigDecimal(100.00);
+        String numeroCartao = "12345678";
+        BDDMockito.given(service.obterSaldo(any(String.class))).
+                willThrow(CartaoInexistenteException.class);
+
+        String json = new ObjectMapper().writeValueAsString(saldo);
+
+        MockHttpServletRequestBuilder req = get(CARTOES_API + "/" + numeroCartao)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                ;
+        req.param("numeroCartao", numeroCartao);
+
+        mockMvc
+                .perform(req)
+                .andExpect(status().isNotFound())
         ;
     }
 }
