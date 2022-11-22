@@ -6,19 +6,10 @@ import io.ideale.auth.repository.CartaoRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
-import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.Optional;
 
 @Service
 public class CartaoServiceImpl implements CartaoService{

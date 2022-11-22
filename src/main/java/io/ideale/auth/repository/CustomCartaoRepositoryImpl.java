@@ -1,17 +1,17 @@
 package io.ideale.auth.repository;
 
-import io.ideale.auth.exception.*;
+import io.ideale.auth.exception.CartaoInexistenteException;
+import io.ideale.auth.exception.SaldoInsuficienteException;
+import io.ideale.auth.exception.SenhaIvalidaException;
 import io.ideale.auth.model.Cartao;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Modifying;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.transaction.Transactional;
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
-import java.sql.SQLIntegrityConstraintViolationException;
 
 
 @Transactional

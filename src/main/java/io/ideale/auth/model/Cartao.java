@@ -27,7 +27,7 @@ import java.math.BigDecimal;
         ),
         @NamedQuery(
                 name = "debitarSaldo",
-                query = "update Cartao c set c.valor = :valor WHERE c.numero = :numero"
+                query = "ó"
         ),
         @NamedQuery(
                 name = "validarSenha",

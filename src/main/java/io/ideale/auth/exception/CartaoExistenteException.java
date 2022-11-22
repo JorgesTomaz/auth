@@ -1,7 +1,6 @@
 package io.ideale.auth.exception;
 
 
-import io.ideale.auth.model.Cartao;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

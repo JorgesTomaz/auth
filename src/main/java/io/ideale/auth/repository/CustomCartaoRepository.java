@@ -1,13 +1,11 @@
 package io.ideale.auth.repository;
 
-import io.ideale.auth.exception.CartaoExistenteException;
 import io.ideale.auth.exception.CartaoInexistenteException;
 import io.ideale.auth.exception.SaldoInsuficienteException;
 import io.ideale.auth.exception.SenhaIvalidaException;
 import io.ideale.auth.model.Cartao;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 public interface CustomCartaoRepository {
 
