@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 @Transactional
 public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
 
+    public static final String NUMERO = "numero";
     @Autowired
     private EntityManager entityManager;
 
@@ -34,7 +35,7 @@ public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
         try {
             cartao = (Cartao) entityManager
                     .createNamedQuery("consultarCartaoExistente")
-                    .setParameter("numero", numero)
+                    .setParameter(NUMERO, numero)
                     .getSingleResult();
         }catch (Exception e) {
             throw CartaoInexistenteException.builder().build();
@@ -47,7 +48,7 @@ public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
         BigDecimal saldo = null;
         saldo = (BigDecimal) entityManager
                 .createNamedQuery("consultarSaldo")
-                .setParameter("numero", numeroCartao)
+                .setParameter(NUMERO, numeroCartao)
                 .getSingleResult();
         return saldo;
     }
@@ -58,7 +59,7 @@ public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
             entityManager
                 .createQuery("update Cartao c set c.valor = :valor WHERE c.numero = :numero")
                 .setParameter("valor", cartao.getValor())
-                .setParameter("numero", cartao.getNumero())
+                .setParameter(NUMERO, cartao.getNumero())
                 .executeUpdate();
         } catch(ConstraintViolationException e) {
             throw SaldoInsuficienteException.builder().build();
@@ -69,12 +70,12 @@ public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
     }
 
     @Override
-    public void validarSenha(Cartao cartao) throws SenhaIvalidaException {
-        Cartao novoCartao = null;
+    public Cartao validarSenha(Cartao cartao) throws SenhaIvalidaException {
+
         try {
-            novoCartao = (Cartao) entityManager
+            return (Cartao) entityManager
                     .createNamedQuery("validarSenha")
-                    .setParameter("numero", cartao.getNumero())
+                    .setParameter(NUMERO, cartao.getNumero())
                     .setParameter("senha", cartao.getSenha())
                     .getSingleResult();
         } catch(NoResultException e) {

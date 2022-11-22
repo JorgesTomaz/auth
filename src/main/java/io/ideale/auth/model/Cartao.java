@@ -2,11 +2,9 @@ package io.ideale.auth.model;
 
 import lombok.*;
 
-
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Positive;
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Setter
@@ -16,27 +14,26 @@ import java.math.BigDecimal;
 @Builder
 @Data
 @Entity
-@NamedQueries({
-        @NamedQuery(
-                name = "consultarCartaoExistente",
-                query = "SELECT c FROM Cartao c WHERE c.numero = :numero"
-        ),
-        @NamedQuery(
-                name = "consultarSaldo",
-                query = "SELECT c.valor FROM Cartao c WHERE c.numero = :numero"
-        ),
-        @NamedQuery(
-                name = "debitarSaldo",
-                query = "ó"
-        ),
-        @NamedQuery(
-                name = "validarSenha",
-                query = "SELECT c FROM Cartao c WHERE c.numero = :numero and c.senha = :senha"
+
+@NamedQuery(
+        name = "consultarCartaoExistente",
+        query = "SELECT c FROM Cartao c WHERE c.numero = :numero"
+)
+@NamedQuery(
+        name = "consultarSaldo",
+        query = "SELECT c.valor FROM Cartao c WHERE c.numero = :numero"
+)
+@NamedQuery(
+        name = "debitarSaldo",
+                query = "update Cartao c set c.valor = :valor WHERE c.numero = :numero"
         )
+@NamedQuery(
+        name = "validarSenha",
+        query = "SELECT c FROM Cartao c WHERE c.numero = :numero and c.senha = :senha"
+)
 
 
-})
-public class Cartao {
+public class Cartao implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

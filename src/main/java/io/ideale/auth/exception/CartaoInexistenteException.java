@@ -9,5 +9,5 @@ import lombok.Setter;
 @Getter
 @Builder
 public class CartaoInexistenteException extends RuntimeException {
-    private CartaoExceptionHandler cartao;
+    private final transient CartaoExceptionHandler cartao;
 }

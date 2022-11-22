@@ -16,5 +16,5 @@ public interface CustomCartaoRepository {
 
     Cartao debito(Cartao cartao) throws SaldoInsuficienteException;
 
-    void validarSenha(Cartao cartao) throws SenhaIvalidaException;
+    Cartao validarSenha(Cartao cartao) throws SenhaIvalidaException;
 }

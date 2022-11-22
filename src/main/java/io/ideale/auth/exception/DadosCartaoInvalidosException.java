@@ -8,5 +8,5 @@ import lombok.Setter;
 @Getter
 @Builder
 public class DadosCartaoInvalidosException extends RuntimeException {
-    private CartaoExceptionHandler cartao;
+    private final transient CartaoExceptionHandler cartao;
 }

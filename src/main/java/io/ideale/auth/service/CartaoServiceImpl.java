@@ -3,15 +3,18 @@ package io.ideale.auth.service;
 import io.ideale.auth.exception.*;
 import io.ideale.auth.model.Cartao;
 import io.ideale.auth.repository.CartaoRepository;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Service
+@AllArgsConstructor
+@Builder
 public class CartaoServiceImpl implements CartaoService{
 
     @Autowired
@@ -23,13 +26,9 @@ public class CartaoServiceImpl implements CartaoService{
     @Override
     public Cartao criarCartao(Cartao cartao) {
         try {
-            cartao.setValor(new BigDecimal(1000.00));
+            cartao.setValor(BigDecimal.valueOf(1000.00));
             return repository.criarNovo(cartao);
-        } catch (DataIntegrityViolationException e) {
-            throw CartaoExistenteException.builder()
-                    .cartao(modelMapper.map(cartao, CartaoExceptionHandler.class))
-                    .build();
-        }catch (Exception e) {
+        } catch (CartaoExistenteException e) {
             throw CartaoExistenteException.builder()
                     .cartao(modelMapper.map(cartao, CartaoExceptionHandler.class))
                     .build();
@@ -58,9 +57,12 @@ public class CartaoServiceImpl implements CartaoService{
 
             repository.validarSenha(cartao);
 
-            cartaoT.setValor(cartaoT.getValor().subtract(cartao.getValor()).setScale(2, RoundingMode.HALF_UP));
+            cartao.setId(cartaoT.getId());
+            cartao.setValor(cartaoT.getValor().subtract(cartao.getValor()).setScale(2, RoundingMode.HALF_UP));
 
-            return repository.debito(cartaoT);
+            cartao = repository.debito(cartao);
+
+            return cartao;
 
         } catch (SenhaIvalidaException e) {
             throw SenhaIvalidaException.builder().build();

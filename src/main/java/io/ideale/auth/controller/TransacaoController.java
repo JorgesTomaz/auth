@@ -28,10 +28,10 @@ public class TransacaoController {
     private CartaoService cartaoService;
 
     @PostMapping
-    public ResponseEntity transacao(@Valid @RequestBody TransacaoDTO transacaoDTO) throws Exception {
+    public ResponseEntity<CartaoDTO> transacao(@Valid @RequestBody TransacaoDTO transacaoDTO) {
         Cartao cartao  = modelMapper.map(transacaoDTO, Cartao.class);
         cartaoService.debito(cartao);
-        return new ResponseEntity<CartaoDTO>(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
 }

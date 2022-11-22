@@ -16,30 +16,30 @@ public class CartaoControllerAdvice {
     @ResponseBody
     @ExceptionHandler(CartaoExistenteException.class)
     public ResponseEntity<CartaoExceptionHandler> cartaoExistente(CartaoExistenteException exception) {
-        return new ResponseEntity<CartaoExceptionHandler>(exception.getCartao(), HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(exception.getCartao(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ResponseBody
     @ExceptionHandler(DadosCartaoInvalidosException.class)
     public ResponseEntity<CartaoExceptionHandler> dadosInvalidos(DadosCartaoInvalidosException exception) {
-        return new ResponseEntity<CartaoExceptionHandler>(exception.getCartao(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(exception.getCartao(), HttpStatus.BAD_REQUEST);
     }
 
     @ResponseBody
     @ExceptionHandler(CartaoInexistenteException.class)
     public ResponseEntity<CartaoExceptionHandler> cartaoInvalido(CartaoInexistenteException exception) {
-        return new ResponseEntity<CartaoExceptionHandler>(exception.getCartao(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(exception.getCartao(), HttpStatus.NOT_FOUND);
     }
 
     @ResponseBody
     @ExceptionHandler(SaldoInsuficienteException.class)
     public ResponseEntity<String> saldoInsuficiente(SaldoInsuficienteException exception) {
-        return new ResponseEntity<String>(SALDO_INSUFICIENTE, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(SALDO_INSUFICIENTE, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ResponseBody
     @ExceptionHandler(SenhaIvalidaException.class)
     public ResponseEntity<String> cartaoInvalido(SenhaIvalidaException exception) {
-        return new ResponseEntity<String>(SENHA_INVALIDA, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(SENHA_INVALIDA, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }
