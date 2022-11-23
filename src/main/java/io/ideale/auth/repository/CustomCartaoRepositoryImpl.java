@@ -1,21 +1,21 @@
 package io.ideale.auth.repository;
 
-import io.ideale.auth.exception.CartaoExceptionHandler;
-import io.ideale.auth.exception.CartaoInvalidoException;
-import io.ideale.auth.exception.DadosCartaoInvalidosException;
+import io.ideale.auth.exception.*;
 import io.ideale.auth.model.Cartao;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.transaction.Transactional;
+import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.Optional;
+
 
 @Transactional
 public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
 
+    public static final String NUMERO = "numero";
     @Autowired
     private EntityManager entityManager;
 
@@ -23,30 +23,26 @@ public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
     private ModelMapper modelMapper;
 
     @Override
-    public Cartao criarNovo(Cartao cartao) throws DadosCartaoInvalidosException {
+    public Cartao criarNovo(Cartao cartao) {
         try {
-
-            Cartao cartaoResposta = entityManager.merge(cartao);
-
-            return cartaoResposta;
+            return entityManager.merge(cartao);
         } catch(Exception e) {
-
-            throw DadosCartaoInvalidosException.builder().cartao(modelMapper.map(cartao, CartaoExceptionHandler.class)).build();
+            throw CartaoExistenteException.builder()
+                    .cartao(modelMapper.map(cartao, CartaoExceptionHandler.class))
+                    .build();
         }
-
     }
 
     @Override
-    public Cartao consultaCartao(String numero) {
+    public Cartao consultaCartao(String numero) throws CartaoInexistenteException{
         Cartao cartao = null;
-
         try {
-             cartao = (Cartao) entityManager
+            cartao = (Cartao) entityManager
                     .createNamedQuery("consultarCartaoExistente")
-                    .setParameter("numero", numero)
+                    .setParameter(NUMERO, numero)
                     .getSingleResult();
-        } catch(Exception e) {
-            return null;
+        }catch (Exception e) {
+            throw CartaoInexistenteException.builder().build();
         }
         return cartao;
     }
@@ -54,19 +50,43 @@ public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
     @Override
     public BigDecimal obterSaldo(String numeroCartao) {
         BigDecimal saldo = null;
+        saldo = (BigDecimal) entityManager
+                .createNamedQuery("consultarSaldo")
+                .setParameter(NUMERO, numeroCartao)
+                .getSingleResult();
+        return saldo;
+    }
+
+    @Override
+    public Cartao debito(Cartao cartao) {
+
+        try{
+           entityManager
+                .createQuery("update Cartao c set c.valor = :valor WHERE c.numero = :numero and c.id= :id")
+                .setParameter("valor", cartao.getValor())
+                .setParameter(NUMERO, cartao.getNumero())
+                .setParameter("id", cartao.getId())
+                .executeUpdate();
+        } catch(ConstraintViolationException e) {
+            throw SaldoInsuficienteException.builder().build();
+        } catch (Exception e) {
+            throw e;
+        }
+        return cartao;
+    }
+
+    @Override
+    public Cartao validarSenha(Cartao cartao) throws SenhaIvalidaException {
 
         try {
-            saldo = (BigDecimal) entityManager
-                    .createNamedQuery("consultarSaldo")
-                    .setParameter("numero", numeroCartao)
+            return (Cartao) entityManager
+                    .createNamedQuery("validarSenha")
+                    .setParameter(NUMERO, cartao.getNumero())
+                    .setParameter("senha", cartao.getSenha())
                     .getSingleResult();
-        } catch(Exception e) {
-            throw CartaoInvalidoException
-                    .builder()
-                    .cartao(
-                            CartaoExceptionHandler.builder().numero(numeroCartao).build()
-                    ).build();
+        } catch(NoResultException e) {
+            throw SenhaIvalidaException.builder().build();
         }
-        return saldo;
+
     }
 }

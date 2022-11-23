@@ -1,21 +1,22 @@
 package io.ideale.auth.service;
 
-import io.ideale.auth.exception.CartaoExceptionHandler;
-import io.ideale.auth.exception.CartaoExistenteException;
+import io.ideale.auth.exception.*;
 import io.ideale.auth.model.Cartao;
 import io.ideale.auth.repository.CartaoRepository;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.Optional;
+import java.math.RoundingMode;
 
 @Service
-public class CartaoServiceImpl implements CartaoService{
+@AllArgsConstructor
+@Builder
+public class CartaoServiceImpl implements CartaoService {
 
     @Autowired
     private CartaoRepository repository;
@@ -24,23 +25,54 @@ public class CartaoServiceImpl implements CartaoService{
     private ModelMapper modelMapper;
 
     @Override
-    public Cartao criarCartao(Cartao cartao) throws Exception {
-
-
-            Cartao cartaoRetornado = repository.consultaCartao(cartao.getNumero());
-
-            if (cartaoRetornado != null) {
-                throw CartaoExistenteException.builder()
-                        .cartao(modelMapper.map(cartao, CartaoExceptionHandler.class))
-                        .build();
-            }
-            cartao.setValor(new BigDecimal(0.00));
-
-            return repository.criarNovo(cartao);
+    public Cartao criarCartao(Cartao cartao) {
+        cartao.setValor(BigDecimal.valueOf(1000.00));
+        return repository.criarNovo(cartao);
     }
 
     @Override
     public BigDecimal obterSaldo(String numeroCartao) {
-        return repository.obterSaldo(numeroCartao);
+        try {
+            return repository.obterSaldo(numeroCartao);
+        } catch (Exception e) {
+            throw CartaoInexistenteException
+                    .builder()
+                    .cartao(
+                            CartaoExceptionHandler.builder().numero(numeroCartao).build()
+                    ).build();
+        }
+
+    }
+
+    @Override
+    public Cartao debito(@Valid Cartao cartao) {
+
+        try {
+            Cartao cartaoT = repository.consultaCartao(cartao.getNumero());
+
+            repository.validarSenha(cartao);
+
+            cartao.setId(cartaoT.getId());
+            cartao.setValor(cartaoT.getValor().subtract(cartao.getValor()).setScale(2, RoundingMode.HALF_UP));
+
+            if (cartao.getValor().signum() == -1) {
+                throw SaldoInsuficienteException.builder().build();
+            }
+            cartao = repository.debito(cartao);
+
+            return cartao;
+
+        } catch (SenhaIvalidaException e) {
+            throw SenhaIvalidaException.builder().build();
+        } catch (SaldoInsuficienteException e) {
+            throw SaldoInsuficienteException.builder().build();
+        } catch (CartaoInexistenteException e) {
+            throw CartaoInexistenteException.builder()
+                    .cartao(modelMapper.map(cartao, CartaoExceptionHandler.class))
+                    .build();
+        } catch (Exception e) {
+            throw DadosCartaoInvalidosException.builder().build();
+        }
+
     }
 }

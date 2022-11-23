@@ -25,17 +25,15 @@ public class CartaoController {
     private CartaoService cartaoService;
 
     @PostMapping
-    public ResponseEntity criarCartao(@Valid @RequestBody CartaoDTO cartaoDTO) throws Exception {
-
-        Cartao cartao  = modelMapper.map(cartaoDTO, Cartao.class);
-        cartao = cartaoService.criarCartao(cartao);
-        return new ResponseEntity<CartaoDTO>(cartaoDTO,HttpStatus.CREATED);
+    public ResponseEntity<CartaoDTO> criarCartao(@Valid @RequestBody CartaoDTO cartaoDTO) {
+        cartaoService.criarCartao(modelMapper.map(cartaoDTO, Cartao.class));
+        return new ResponseEntity<>(cartaoDTO,HttpStatus.CREATED);
     }
 
     @GetMapping("{numeroCartao}")
-    public ResponseEntity obtersaldo(@PathVariable String numeroCartao) throws Exception {
+    public ResponseEntity<BigDecimal> obtersaldo(@PathVariable String numeroCartao) {
         BigDecimal saldo = cartaoService.obterSaldo(numeroCartao);
-        return new ResponseEntity(saldo,HttpStatus.OK);
+        return new ResponseEntity<>(saldo,HttpStatus.OK);
     }
 
 }

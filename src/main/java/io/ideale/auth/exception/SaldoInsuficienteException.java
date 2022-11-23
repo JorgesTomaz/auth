@@ -8,6 +8,5 @@ import lombok.Setter;
 @Setter
 @Getter
 @Builder
-public class CartaoInvalidoException extends RuntimeException {
-    private CartaoExceptionHandler cartao;
+public class SaldoInsuficienteException extends RuntimeException {
 }

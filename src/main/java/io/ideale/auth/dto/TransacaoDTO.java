@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 @Setter
 @Getter
@@ -11,11 +12,14 @@ import javax.validation.constraints.NotNull;
 @RequiredArgsConstructor
 @Builder
 @Data
-public class CartaoDTO {
-    @NotNull(message = "Informar numero cartao")
-    @NotEmpty(message = "Informar numero cartao")
+public class TransacaoDTO {
+
+    @NotNull
+    @NotEmpty
     private String numero;
-    @NotNull(message = "Informar senha cartao")
-    @NotEmpty(message = "Informar senha cartao")
+    @NotNull
+    @NotEmpty
     private String senha;
+    @NotNull
+    private BigDecimal valor;
 }

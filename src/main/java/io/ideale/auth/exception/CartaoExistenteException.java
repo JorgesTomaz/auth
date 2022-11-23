@@ -1,7 +1,6 @@
 package io.ideale.auth.exception;
 
 
-import io.ideale.auth.model.Cartao;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,5 +9,5 @@ import lombok.Setter;
 @Getter
 @Builder
 public class CartaoExistenteException extends RuntimeException {
-    private CartaoExceptionHandler cartao;
+    private final transient CartaoExceptionHandler cartao;
 }

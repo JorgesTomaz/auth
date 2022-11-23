@@ -1,5 +1,6 @@
 package io.ideale.auth.exception;
 
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +8,5 @@ import lombok.Setter;
 @Setter
 @Getter
 @Builder
-public class DadosCartaoInvalidosException extends RuntimeException {
-    private final transient CartaoExceptionHandler cartao;
+public class SenhaIvalidaException extends RuntimeException {
 }
