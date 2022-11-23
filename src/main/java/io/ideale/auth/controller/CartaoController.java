@@ -26,7 +26,6 @@ public class CartaoController {
 
     @PostMapping
     public ResponseEntity<CartaoDTO> criarCartao(@Valid @RequestBody CartaoDTO cartaoDTO) {
-        cartaoDTO.setNumero("");
         cartaoService.criarCartao(modelMapper.map(cartaoDTO, Cartao.class));
         return new ResponseEntity<>(cartaoDTO,HttpStatus.CREATED);
     }

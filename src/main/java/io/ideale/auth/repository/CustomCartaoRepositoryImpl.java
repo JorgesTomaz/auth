@@ -1,8 +1,6 @@
 package io.ideale.auth.repository;
 
-import io.ideale.auth.exception.CartaoInexistenteException;
-import io.ideale.auth.exception.SaldoInsuficienteException;
-import io.ideale.auth.exception.SenhaIvalidaException;
+import io.ideale.auth.exception.*;
 import io.ideale.auth.model.Cartao;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +24,13 @@ public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
 
     @Override
     public Cartao criarNovo(Cartao cartao) {
-        return entityManager.merge(cartao);
+        try {
+            return entityManager.merge(cartao);
+        } catch(Exception e) {
+            throw CartaoExistenteException.builder()
+                    .cartao(modelMapper.map(cartao, CartaoExceptionHandler.class))
+                    .build();
+        }
     }
 
     @Override
@@ -55,11 +59,13 @@ public class CustomCartaoRepositoryImpl implements CustomCartaoRepository{
 
     @Override
     public Cartao debito(Cartao cartao) {
+
         try{
-            entityManager
-                .createQuery("update Cartao c set c.valor = :valor WHERE c.numero = :numero")
+           entityManager
+                .createQuery("update Cartao c set c.valor = :valor WHERE c.numero = :numero and c.id= :id")
                 .setParameter("valor", cartao.getValor())
                 .setParameter(NUMERO, cartao.getNumero())
+                .setParameter("id", cartao.getId())
                 .executeUpdate();
         } catch(ConstraintViolationException e) {
             throw SaldoInsuficienteException.builder().build();

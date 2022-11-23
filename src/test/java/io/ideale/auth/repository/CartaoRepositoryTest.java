@@ -1,5 +1,6 @@
 package io.ideale.auth.repository;
 
+import io.ideale.auth.exception.CartaoExistenteException;
 import io.ideale.auth.exception.CartaoInexistenteException;
 import io.ideale.auth.exception.SenhaIvalidaException;
 import io.ideale.auth.model.Cartao;
@@ -58,7 +59,7 @@ class CartaoRepositoryTest {
 
         Throwable throwable = Assertions.catchThrowable(()-> repository.criarNovo(cartaoExistente));
 
-        assertTrue(throwable instanceof DataIntegrityViolationException);
+        assertTrue(throwable instanceof CartaoExistenteException);
 
     }
 
@@ -144,8 +145,8 @@ class CartaoRepositoryTest {
         Cartao cartao = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000L)).build();
         Cartao cartaoDebito = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(900)).build();
 
-        repository.criarNovo(cartao);
-
+        Cartao debitado = repository.criarNovo(cartao);
+        cartaoDebito.setId(debitado.getId());
         Cartao cartaoDebitado = repository.debito(cartaoDebito);
 
         BigDecimal saldo = repository.obterSaldo(cartaoDebito.getNumero());

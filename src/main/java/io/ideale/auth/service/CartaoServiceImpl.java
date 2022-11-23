@@ -9,13 +9,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Service
 @AllArgsConstructor
 @Builder
-public class CartaoServiceImpl implements CartaoService{
+public class CartaoServiceImpl implements CartaoService {
 
     @Autowired
     private CartaoRepository repository;
@@ -25,21 +26,15 @@ public class CartaoServiceImpl implements CartaoService{
 
     @Override
     public Cartao criarCartao(Cartao cartao) {
-        try {
-            cartao.setValor(BigDecimal.valueOf(1000.00));
-            return repository.criarNovo(cartao);
-        } catch (CartaoExistenteException e) {
-            throw CartaoExistenteException.builder()
-                    .cartao(modelMapper.map(cartao, CartaoExceptionHandler.class))
-                    .build();
-        }
+        cartao.setValor(BigDecimal.valueOf(1000.00));
+        return repository.criarNovo(cartao);
     }
 
     @Override
     public BigDecimal obterSaldo(String numeroCartao) {
         try {
             return repository.obterSaldo(numeroCartao);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw CartaoInexistenteException
                     .builder()
                     .cartao(
@@ -50,7 +45,7 @@ public class CartaoServiceImpl implements CartaoService{
     }
 
     @Override
-    public Cartao debito(Cartao cartao) {
+    public Cartao debito(@Valid Cartao cartao) {
 
         try {
             Cartao cartaoT = repository.consultaCartao(cartao.getNumero());
@@ -60,6 +55,9 @@ public class CartaoServiceImpl implements CartaoService{
             cartao.setId(cartaoT.getId());
             cartao.setValor(cartaoT.getValor().subtract(cartao.getValor()).setScale(2, RoundingMode.HALF_UP));
 
+            if (cartao.getValor().signum() == -1) {
+                throw SaldoInsuficienteException.builder().build();
+            }
             cartao = repository.debito(cartao);
 
             return cartao;
