@@ -1,28 +1,27 @@
 package io.ideale.auth.repository;
 
-import io.ideale.auth.exception.CartaoExistenteException;
-import io.ideale.auth.exception.CartaoInexistenteException;
 import io.ideale.auth.exception.SenhaIvalidaException;
 import io.ideale.auth.model.Cartao;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -40,11 +39,13 @@ class CartaoRepositoryTest {
     @DisplayName("criar novo cartao no banco")
     void criarCartao() {
 
-        Cartao cartao = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000L)).build();
+        Cartao cartao = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000.00)).build();
 
-        Cartao cartaoCriado = repository.criarNovo(cartao);
+        repository.criarNovo(cartao);
 
-        assertThat(cartaoCriado.getId()).isNotZero();
+        Cartao cartaoP = repository.findByNumeroAndSenha(cartao.getNumero(), cartao.getSenha());
+        assertThat(cartaoP).extracting(Cartao::getValor).isEqualTo(BigDecimal.valueOf(1000.00));
+
     }
 
     @Test
@@ -59,33 +60,41 @@ class CartaoRepositoryTest {
 
         Throwable throwable = Assertions.catchThrowable(()-> repository.criarNovo(cartaoExistente));
 
-        assertTrue(throwable instanceof CartaoExistenteException);
+        assertTrue(throwable instanceof RuntimeException);
 
     }
 
     @Test
     @DisplayName("consultar Cartao")
     void consultaCartao(){
-        Cartao cartao = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000L)).build();
+        Cartao cartaoC = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(900.00)).build();
 
-        repository.criarNovo(cartao);
+        repository.criarNovo(cartaoC);
 
-        Cartao cartaoConsultado = repository.consultaCartao(cartao.getNumero());
+        String numeroCartao = "123456789";
 
-        assertThat(cartaoConsultado.getId()).isNotZero();
+        Optional<Cartao> op = repository.findById(numeroCartao);
+
+        op.ifPresent((value) -> {
+            assertEquals(value.getNumero(), numeroCartao);
+            assertThat(value.getSenha()).isEqualTo(cartaoC.getSenha());
+            assertThat(value.getValor()).isEqualTo(cartaoC.getValor());
+        });
 
     }
 
     @Test
     @DisplayName("consultar Cartao Nao Existente")
     void consultaCartaoNaoExistente(){
-        Cartao cartao = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000L)).build();
+        Cartao cartaoC = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(900.00)).build();
 
-        repository.criarNovo(cartao);
+        repository.criarNovo(cartaoC);
 
-        Throwable throwable = Assertions.catchThrowable(()-> repository.consultaCartao("123"));
+        String numeroCartao = "12345678";
 
-        assertTrue(throwable instanceof CartaoInexistenteException);
+        Optional<Cartao> op = repository.findById(numeroCartao);
+
+        assertTrue(op.isEmpty());
 
     }
 
@@ -96,45 +105,42 @@ class CartaoRepositoryTest {
 
         repository.criarNovo(cartao);
 
-        BigDecimal saldo = repository.obterSaldo(cartao.getNumero());
+        BigDecimal saldo = repository.findById(cartao.getNumero()).get().getValor();
 
         assertEquals(cartao.getValor().doubleValue(), saldo.doubleValue());
     }
 
     @Test
-    @DisplayName("obter saldo de cartao nao existente")
-    void obterSaldoCartaoNaoExistente(){
-        Cartao cartao = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000L)).build();
-
-        repository.criarNovo(cartao);
-
-        Throwable throwable = Assertions.catchThrowable(()-> repository.obterSaldo("123"));
-
-        assertTrue(throwable instanceof EmptyResultDataAccessException);
-    }
-
-    @Test
     @DisplayName("validar senha cartao")
     void validarSenhaCartao(){
-        Cartao cartao = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000L)).build();
+        Cartao cartaoC = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000L)).build();
 
-        repository.criarNovo(cartao);
+        Cartao cartaoP = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000L)).build();
 
-        Cartao cartaoConsultado = repository.validarSenha(cartao);
+        repository.criarNovo(cartaoC);
 
-        assertThat(cartaoConsultado.getId()).isNotZero();
+        Cartao cartaoConsultado = repository.findByNumeroAndSenha(cartaoP.getNumero(), cartaoP.getSenha());
+
+        assertThat(cartaoConsultado.getNumero()).isNotEmpty();
+
+
     }
 
     @Test
     @DisplayName("validar senha cartao invalida")
     void validarSenhaInvalida(){
-        Cartao cartao = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000L)).build();
+        Cartao cartaoC = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000L)).build();
 
-        repository.criarNovo(cartao);
+        repository.criarNovo(cartaoC);
 
+        Cartao cartaoP = Cartao.builder().numero("123456789").senha("12345").valor(BigDecimal.valueOf(1000L)).build();
+        Optional<Cartao> op = Optional.ofNullable(repository.findByNumeroAndSenha(cartaoP.getNumero(), cartaoP.getSenha()));
         Throwable throwable = Assertions.catchThrowable(()->
-                repository.validarSenha(
-                        Cartao.builder().numero("123456789").senha("123").build()));
+
+
+        op.ifPresentOrElse(val->{},
+                ()->{throw SenhaIvalidaException.builder().build();})
+        );
 
         assertTrue(throwable instanceof SenhaIvalidaException);
     }
@@ -142,17 +148,15 @@ class CartaoRepositoryTest {
     @Test
     @DisplayName("debitar saldo")
     void debitarSaldo(){
-        Cartao cartao = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000L)).build();
-        Cartao cartaoDebito = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(900)).build();
+        Cartao cartaoC = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(1000L)).build();
 
-        Cartao debitado = repository.criarNovo(cartao);
-        cartaoDebito.setId(debitado.getId());
-        Cartao cartaoDebitado = repository.debito(cartaoDebito);
+        Cartao cartaoD = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(900)).build();
 
-        BigDecimal saldo = repository.obterSaldo(cartaoDebito.getNumero());
+        repository.criarNovo(cartaoC);
 
-        assertThat(saldo).isPositive();
-        assertEquals(900L, saldo.longValue());
+        Cartao cartaoDebitado = repository.debito(cartaoD);
+
+        assertEquals(900.00, cartaoDebitado.getValor().doubleValue());
 
     }
 }

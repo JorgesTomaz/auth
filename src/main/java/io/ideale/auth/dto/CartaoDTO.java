@@ -12,10 +12,10 @@ import javax.validation.constraints.NotNull;
 @Builder
 @Data
 public class CartaoDTO {
-    @NotNull(message = "Informar numero cartao")
-    @NotEmpty(message = "Informar numero cartao")
-    private String numero;
-    @NotNull(message = "Informar senha cartao")
-    @NotEmpty(message = "Informar senha cartao")
+    @NotNull(message = "")
+    @NotEmpty(message = "")
+    private String numeroCartao;
+    @NotNull(message = "")
+    @NotEmpty(message = "")
     private String senha;
 }

@@ -12,6 +12,7 @@ public class CartaoControllerAdvice {
 
     public static final String SALDO_INSUFICIENTE = "SALDO_INSUFICIENTE";
     public static final String SENHA_INVALIDA = "SENHA_INVALIDA";
+    private static final String CARTO_INEXISTENTE = "CARTAO_INEXISTENTE";
 
     @ResponseBody
     @ExceptionHandler(CartaoExistenteException.class)
@@ -27,8 +28,8 @@ public class CartaoControllerAdvice {
 
     @ResponseBody
     @ExceptionHandler(CartaoInexistenteException.class)
-    public ResponseEntity<CartaoExceptionHandler> cartaoInvalido(CartaoInexistenteException exception) {
-        return new ResponseEntity<>(exception.getCartao(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<String> cartaoInvalido(CartaoInexistenteException exception) {
+        return new ResponseEntity<>(CARTO_INEXISTENTE, HttpStatus.NOT_FOUND);
     }
 
     @ResponseBody

@@ -3,7 +3,6 @@ package io.ideale.auth.controller;
 import io.ideale.auth.dto.CartaoDTO;
 import io.ideale.auth.model.Cartao;
 import io.ideale.auth.service.CartaoService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,14 +18,16 @@ import java.math.BigDecimal;
 public class CartaoController {
 
     @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
     private CartaoService cartaoService;
 
     @PostMapping
     public ResponseEntity<CartaoDTO> criarCartao(@Valid @RequestBody CartaoDTO cartaoDTO) {
-        cartaoService.criarCartao(modelMapper.map(cartaoDTO, Cartao.class));
+        cartaoService.criarCartao(
+                Cartao.builder()
+                        .numero(cartaoDTO.getNumeroCartao())
+                        .senha(cartaoDTO.getSenha())
+                        .build()
+        );
         return new ResponseEntity<>(cartaoDTO,HttpStatus.CREATED);
     }
 

@@ -16,10 +16,10 @@ public class TransacaoDTO {
 
     @NotNull
     @NotEmpty
-    private String numero;
+    private String numeroCartao;
     @NotNull
     @NotEmpty
-    private String senha;
+    private String senhaCartao;
     @NotNull
     private BigDecimal valor;
 }

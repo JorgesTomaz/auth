@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 
 public interface CartaoService {
-    Cartao criarCartao(Cartao cartao);
+    void criarCartao(Cartao cartao);
 
     BigDecimal obterSaldo(String numeroCartao);
 

@@ -4,7 +4,6 @@ import io.ideale.auth.dto.CartaoDTO;
 import io.ideale.auth.dto.TransacaoDTO;
 import io.ideale.auth.model.Cartao;
 import io.ideale.auth.service.CartaoService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +21,15 @@ import javax.validation.Valid;
 public class TransacaoController {
 
     @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
     private CartaoService cartaoService;
 
     @PostMapping
     public ResponseEntity<CartaoDTO> transacao(@Valid @RequestBody TransacaoDTO transacaoDTO) {
-        Cartao cartao  = modelMapper.map(transacaoDTO, Cartao.class);
+        Cartao cartao  = Cartao.builder()
+                .numero(transacaoDTO.getNumeroCartao())
+                .senha(transacaoDTO.getSenhaCartao())
+                .valor(transacaoDTO.getValor())
+                .build();
         cartaoService.debito(cartao);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
