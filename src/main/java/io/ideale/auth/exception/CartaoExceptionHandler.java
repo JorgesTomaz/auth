@@ -11,6 +11,6 @@ import java.io.Serializable;
 @RequiredArgsConstructor
 @Data
 public class CartaoExceptionHandler implements Serializable {
-    private String numero;
+    private String numeroCartao;
     private String senha;
 }

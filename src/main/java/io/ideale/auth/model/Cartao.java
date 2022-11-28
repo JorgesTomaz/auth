@@ -1,9 +1,12 @@
 package io.ideale.auth.model;
 
 import lombok.*;
+import org.springframework.stereotype.Component;
 
-import javax.persistence.*;
-import javax.validation.constraints.Positive;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.validation.constraints.PositiveOrZero;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -14,30 +17,10 @@ import java.math.BigDecimal;
 @Builder
 @Data
 @Entity
-
-@NamedQuery(
-        name = "consultarCartaoExistente",
-        query = "SELECT c FROM Cartao c WHERE c.numero = :numero"
-)
-@NamedQuery(
-        name = "consultarSaldo",
-        query = "SELECT c.valor FROM Cartao c WHERE c.numero = :numero"
-)
-@NamedQuery(
-        name = "debitarSaldo",
-                query = "update Cartao c set c.valor = :valor WHERE c.numero = :numero"
-        )
-@NamedQuery(
-        name = "validarSenha",
-        query = "SELECT c FROM Cartao c WHERE c.numero = :numero and c.senha = :senha"
-)
-
-
+@Component
 public class Cartao implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
     @Column(unique = true, nullable = false)
     private String numero;
 
@@ -45,6 +28,7 @@ public class Cartao implements Serializable {
     private String senha;
 
     @Column
-    @Positive
+    @PositiveOrZero(message = "SALDO_INSUFICIENTE")
     private BigDecimal valor;
+
 }

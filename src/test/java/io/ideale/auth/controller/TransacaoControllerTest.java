@@ -45,8 +45,8 @@ class TransacaoControllerTest {
     @Test
     @DisplayName("Realizar transacao de debito")
     void realizarDebito() throws Exception{
-        TransacaoDTO transacaoDTO = TransacaoDTO.builder().numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
-        Cartao cartao = Cartao.builder().id(1L).numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
+        TransacaoDTO transacaoDTO = TransacaoDTO.builder().numeroCartao("12345678").senhaCartao("12345").valor(BigDecimal.valueOf(500L)).build();
+        Cartao cartao = Cartao.builder().numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
 
         BDDMockito.given(service.debito(any(Cartao.class))).willReturn(cartao);
 
@@ -66,8 +66,8 @@ class TransacaoControllerTest {
     @Test
     @DisplayName("Realizar transacao de debito com saldo insuficiente")
     void realizarDebitoComSaldoInsuficiente() throws Exception{
-        TransacaoDTO transacaoDTO = TransacaoDTO.builder().numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
-        Cartao cartao = Cartao.builder().id(1L).numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
+        TransacaoDTO transacaoDTO = TransacaoDTO.builder().numeroCartao("12345678").senhaCartao("12345").valor(BigDecimal.valueOf(500L)).build();
+        Cartao cartao = Cartao.builder().numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
 
         BDDMockito.given(service.debito(any(Cartao.class))).willThrow(SaldoInsuficienteException.class);
 
@@ -82,15 +82,15 @@ class TransacaoControllerTest {
         mockMvc
                 .perform(req)
                 .andExpect(status().isUnprocessableEntity())
-               .andExpect(content().string("SALDO_INSUFICIENTE"))
+                .andExpect(content().string("SALDO_INSUFICIENTE"))
         ;
     }
 
     @Test
     @DisplayName("Realizar transacao de debito com senha invalida")
     void realizarDebitoComSenhaInvalida() throws Exception{
-        TransacaoDTO transacaoDTO = TransacaoDTO.builder().numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
-        Cartao cartao = Cartao.builder().id(1L).numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
+        TransacaoDTO transacaoDTO = TransacaoDTO.builder().numeroCartao("12345678").senhaCartao("12345").valor(BigDecimal.valueOf(500L)).build();
+        Cartao cartao = Cartao.builder().numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
 
         BDDMockito.given(service.debito(any(Cartao.class))).willThrow(SenhaIvalidaException.class);
 
@@ -113,8 +113,8 @@ class TransacaoControllerTest {
     @Test
     @DisplayName("Realizar transacao de debito com cartao inexistente")
     void realizarDebitoComCartaoInexistente() throws Exception{
-        TransacaoDTO transacaoDTO = TransacaoDTO.builder().numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
-        Cartao cartao = Cartao.builder().id(1L).numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
+        TransacaoDTO transacaoDTO = TransacaoDTO.builder().numeroCartao("12345678").senhaCartao("12345").valor(BigDecimal.valueOf(500L)).build();
+        Cartao cartao = Cartao.builder().numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
 
         BDDMockito.given(service.debito(any(Cartao.class))).willThrow(CartaoInexistenteException.class);
 
@@ -129,6 +129,7 @@ class TransacaoControllerTest {
         mockMvc
                 .perform(req)
                 .andExpect(status().isNotFound())
+                .andExpect(content().string("CARTAO_INEXISTENTE"))
 
         ;
     }
