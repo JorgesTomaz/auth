@@ -1,5 +1,6 @@
 package io.ideale.auth.service;
 
+import io.ideale.auth.exception.BuscarSaldoCartaoInexistenteException;
 import io.ideale.auth.exception.CartaoInexistenteException;
 import io.ideale.auth.exception.SaldoInsuficienteException;
 import io.ideale.auth.exception.SenhaIvalidaException;
@@ -79,7 +80,7 @@ class CartaoServiceTest {
         service = CartaoServiceImpl.builder().repository(repository).build();
 
         Throwable throwable = Assertions.catchThrowable(()-> service.obterSaldo(numeroCartao));
-        assertTrue(throwable instanceof CartaoInexistenteException);
+        assertTrue(throwable instanceof BuscarSaldoCartaoInexistenteException);
     }
 
     @Test

@@ -128,7 +128,7 @@ class TransacaoControllerTest {
 
         mockMvc
                 .perform(req)
-                .andExpect(status().isNotFound())
+                .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().string("CARTAO_INEXISTENTE"))
 
         ;

@@ -1,6 +1,9 @@
 package io.ideale.auth.exception;
 
 
+import io.ideale.auth.dto.CartaoDTO;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -12,12 +15,15 @@ public class CartaoControllerAdvice {
 
     public static final String SALDO_INSUFICIENTE = "SALDO_INSUFICIENTE";
     public static final String SENHA_INVALIDA = "SENHA_INVALIDA";
+    public static final String CARTAO_INEXISTENTE = "CARTAO_INEXISTENTE";
 
+    @Autowired
+    private ModelMapper modelMapper;
 
     @ResponseBody
     @ExceptionHandler(CartaoExistenteException.class)
-    public ResponseEntity<CartaoExceptionHandler> cartaoExistente(CartaoExistenteException exception) {
-        return new ResponseEntity<>(exception.getCartao(), HttpStatus.UNPROCESSABLE_ENTITY);
+    public ResponseEntity<CartaoDTO> cartaoExistente(CartaoExistenteException exception) {
+        return new ResponseEntity<>(modelMapper.map(exception.getCartao(), CartaoDTO.class), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ResponseBody
@@ -27,9 +33,15 @@ public class CartaoControllerAdvice {
     }
 
     @ResponseBody
+    @ExceptionHandler(BuscarSaldoCartaoInexistenteException.class)
+    public ResponseEntity<String> buscarSaldoCartaoInvalido(BuscarSaldoCartaoInexistenteException exception) {
+        return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
+    }
+
+    @ResponseBody
     @ExceptionHandler(CartaoInexistenteException.class)
     public ResponseEntity<String> cartaoInvalido(CartaoInexistenteException exception) {
-        return new ResponseEntity<>(exception.getCartao().getTipo(), exception.getCartao().getStatus());
+        return new ResponseEntity<>(CARTAO_INEXISTENTE, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ResponseBody

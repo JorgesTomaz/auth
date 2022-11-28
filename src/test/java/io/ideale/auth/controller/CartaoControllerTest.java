@@ -2,6 +2,7 @@ package io.ideale.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ideale.auth.dto.CartaoDTO;
+import io.ideale.auth.exception.BuscarSaldoCartaoInexistenteException;
 import io.ideale.auth.exception.CartaoExceptionHandler;
 import io.ideale.auth.exception.CartaoExistenteException;
 import io.ideale.auth.exception.CartaoInexistenteException;
@@ -60,7 +61,10 @@ class CartaoControllerTest {
 
         mockMvc
                 .perform(req)
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(content().string("{\"numeroCartao\":\"12345678\",\"senha\":\"12345\"}"))
+        ;
+
     }
 
     @Test
@@ -68,9 +72,6 @@ class CartaoControllerTest {
     void criarCartaoJaExistente() throws Exception{
         CartaoDTO cartaoDTO = CartaoDTO.builder().numeroCartao("12345678").senha("12345").build();
         Cartao cartao = Cartao.builder().numero("12345678").senha("12345").build();
-
-        //BDDMockito.given(service.criarCartao(any(Cartao.class))).
-        //willThrow(CartaoExistenteException.class);
 
         willThrow(CartaoExistenteException
                 .builder()
@@ -91,7 +92,9 @@ class CartaoControllerTest {
 
         mockMvc
                 .perform(req)
-                .andExpect(status().isUnprocessableEntity());
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().string("{\"numeroCartao\":\"12345678\",\"senha\":\"12345\"}"))
+        ;
     }
 
     @Test
@@ -123,7 +126,7 @@ class CartaoControllerTest {
         BigDecimal saldo = new BigDecimal(100.00);
         String numeroCartao = "12345678";
         BDDMockito.given(service.obterSaldo(any(String.class))).
-                willThrow(CartaoInexistenteException.class);
+                willThrow(BuscarSaldoCartaoInexistenteException.class);
 
         String json = new ObjectMapper().writeValueAsString(saldo);
 
@@ -136,6 +139,7 @@ class CartaoControllerTest {
         mockMvc
                 .perform(req)
                 .andExpect(status().isNotFound())
+                .andExpect(content().string(""))
         ;
     }
 }
