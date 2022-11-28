@@ -93,7 +93,7 @@ class CartaoControllerTest {
         mockMvc
                 .perform(req)
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(content().string("{\"numeroCartao\":\"12345678\",\"senha\":\"12345\"}"))
+                .andExpect(content().string("{\"senha\":\"12345\",\"numeroCartao\":\"12345678\"}"))
         ;
     }
 
