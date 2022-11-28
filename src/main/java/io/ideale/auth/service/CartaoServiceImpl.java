@@ -30,7 +30,7 @@ public class CartaoServiceImpl implements CartaoService {
     @Override
     public void criarCartao(Cartao cartao) {
         try {
-            cartao.setValor(BigDecimal.valueOf(1000.00));
+            cartao.setValor(BigDecimal.valueOf(500.00));
             repository.criarNovo(cartao);
         } catch (Exception e) {
             throw CartaoExistenteException.builder()

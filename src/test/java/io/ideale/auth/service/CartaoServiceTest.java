@@ -47,6 +47,7 @@ class CartaoServiceTest {
         service.criarCartao(cartao);
 
         assertThat(cartao.getValor()).isPositive();
+        assertEquals(BigDecimal.valueOf(500.00), cartao.getValor());
 
     }
 
