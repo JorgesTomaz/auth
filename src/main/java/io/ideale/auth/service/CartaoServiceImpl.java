@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -55,9 +56,8 @@ public class CartaoServiceImpl implements CartaoService {
         } catch (CartaoInexistenteException e) {
             throw CartaoInexistenteException
                     .builder()
-                    .cartao(
-                            CartaoExceptionHandler.builder().numeroCartao(numeroCartao).build()
-                    ).build();
+                    .cartao(CartaoExceptionHandler.builder().tipo("").status(HttpStatus.NOT_FOUND).build())
+                    .build();
         }
 
     }
@@ -91,7 +91,10 @@ public class CartaoServiceImpl implements CartaoService {
         } catch (SaldoInsuficienteException e) {
             throw SaldoInsuficienteException.builder().build();
         } catch (CartaoInexistenteException e) {
-            throw CartaoInexistenteException.builder().build();
+            throw CartaoInexistenteException
+                    .builder()
+                    .cartao(CartaoExceptionHandler.builder().tipo("CARTAO_INEXISTENTE").status(HttpStatus.UNPROCESSABLE_ENTITY).build())
+                    .build();
         } catch (Exception e) {
             throw DadosCartaoInvalidosException.builder().build();
         }
