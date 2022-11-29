@@ -67,19 +67,21 @@ class CartaoRepositoryTest {
     @Test
     @DisplayName("consultar Cartao")
     void consultaCartao(){
-        Cartao cartaoC = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(900.00)).build();
+        //Cartao cartaoC = Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(900.00)).build();
 
-        repository.criarNovo(cartaoC);
+        repository.criarNovo(Cartao.builder().numero("123456789").senha("123456").valor(BigDecimal.valueOf(900.00)).build());
 
         String numeroCartao = "123456789";
+        String senha = "123456";
+        BigDecimal valor = BigDecimal.valueOf(900.00);
 
         Optional<Cartao> op = repository.findById(numeroCartao);
 
-        op.ifPresent((value) -> {
-            assertEquals(value.getNumero(), numeroCartao);
-            assertThat(value.getSenha()).isEqualTo(cartaoC.getSenha());
-            assertThat(value.getValor()).isEqualTo(cartaoC.getValor());
-        });
+        Cartao cartao = op.get();
+        assertEquals(cartao.getNumero(), numeroCartao);
+        assertThat(cartao.getSenha()).isEqualTo(senha);
+        assertThat(cartao.getValor()).isEqualTo(valor);
+
 
     }
 
