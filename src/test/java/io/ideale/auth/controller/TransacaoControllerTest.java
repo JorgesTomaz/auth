@@ -6,6 +6,7 @@ import io.ideale.auth.exception.CartaoInexistenteException;
 import io.ideale.auth.exception.SaldoInsuficienteException;
 import io.ideale.auth.exception.SenhaIvalidaException;
 import io.ideale.auth.model.Cartao;
+import io.ideale.auth.model.CartaoEnum;
 import io.ideale.auth.service.CartaoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -89,7 +90,7 @@ class TransacaoControllerTest {
     @Test
     @DisplayName("Realizar transacao de debito com senha invalida")
     void realizarDebitoComSenhaInvalida() throws Exception{
-        TransacaoDTO transacaoDTO = TransacaoDTO.builder().numeroCartao("12345678").senhaCartao("12345").valor(BigDecimal.valueOf(500L)).build();
+        TransacaoDTO transacaoDTO = TransacaoDTO.builder().numeroCartao("12345678").senhaCartao("1234").valor(BigDecimal.valueOf(500L)).build();
         Cartao cartao = Cartao.builder().numero("12345678").senha("12345").valor(BigDecimal.valueOf(500L)).build();
 
         BDDMockito.given(service.debito(any(Cartao.class))).willThrow(SenhaIvalidaException.class);
@@ -105,7 +106,7 @@ class TransacaoControllerTest {
         mockMvc
                 .perform(req)
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(content().string("SENHA_INVALIDA"))
+                .andExpect(content().string(CartaoEnum.SENHA_INVALIDA.toString()))
         ;
     }
 

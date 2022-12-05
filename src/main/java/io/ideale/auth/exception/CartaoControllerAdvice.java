@@ -1,6 +1,7 @@
 package io.ideale.auth.exception;
 
 
+import io.ideale.auth.model.CartaoEnum;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -47,6 +48,6 @@ public class CartaoControllerAdvice {
     @ResponseBody
     @ExceptionHandler(SenhaIvalidaException.class)
     public ResponseEntity<String> cartaoInvalido(SenhaIvalidaException exception) {
-        return new ResponseEntity<>(SENHA_INVALIDA, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(CartaoEnum.SENHA_INVALIDA.toString(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }
